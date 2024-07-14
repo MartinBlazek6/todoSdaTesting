@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Roles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;    /* Add top margin if needed - pro větší mezeru mezi table a Return button */
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Style for the return button */
+        .return-button {
+            background-color: #008CBA; /* Blue color */
+            color: white;
+            padding: 10px 20px;
+            margin-bottom: 20px; /* Add bottom margin to have the space between Button and table*/
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: inline-block; /* Added to apply margin correctly */
+        }
+
+        .return-button:hover {
+            background-color: #005f73; /* Darker blue on hover */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Manage User Roles</h1>
+    <!-- Button to return to the main page -->
+    <a th:href="@{/}" class="return-button">Return to Main Page</a>
+    <!-- Table for ROLE CHANGE -->
+    <table>
+        <thead>
+        <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Loop through users -->
+        <tr th:each="user : ${users}">
+            <td th:text="${user.username}"></td>
+            <td th:text="${user.role}"></td>
+            <td>
+                <!-- Form to change user role -->
+                <form th:action="@{/admin/changeRole}" method="post">
+                    <input type="hidden" th:name="userId" th:value="${user.id}" />
+                    <select th:name="newRole">
+                        <option value="USER">USER</option>
+                        <option value="ADMIN">ADMIN</option>
+                    </select>
+                    <button type="submit">Change Role</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

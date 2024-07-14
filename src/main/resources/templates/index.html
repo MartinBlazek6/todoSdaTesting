@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Todo List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            font-weight: normal;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        form {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        input[type="text"], input[type="date"], button[type="submit"] {
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: #fff;
+            border: none; 
+            padding: 5px 10px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+        nav {
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        nav li {
+            float: left;
+        }
+
+        nav a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        /* Add this style for the active link */
+        nav a.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+
+    <!-- function showAccessDenied() {...}:
+          This is a JavaScript function declaration. The function, named showAccessDenied, contains a single statement.
+          When called, this function executes the code inside its curly braces {}.
+         alert("Access not allowed. Please LOGIN as admin with ADMIN role.");:
+          Inside the function, the alert method is called with a string message.
+          "alert" is a built-in JavaScript function that displays a dialog box with a specified message and an OK button.
+          In this case, it shows the message "Access not allowed. Please LOGIN as admin with ADMIN role." This dialog
+          must be dismissed (by clicking OK) before the user can interact with the page again.
+          "text/javascript": is the Internet media type for JavaScript. It tells the browser that the content enclosed in
+          the script tag is JavaScript code.-->
+    <script type="text/javascript">
+        function showAccessDenied() {
+            alert("Access not allowed. Please LOGIN as admin with ADMIN role.");
+        }
+
+    </script>
+</head>
+<body>
+<nav>
+    <ul>
+        <!-- Home Link -->
+        <li><a href="/">Home</a></li>
+
+        <!-- Conditional Admin Link (Visible only to users with ADMIN role) .... Toto zatím nefachčí.
+             sec:authorize="hasRole('ADMIN')" nefachčí !!!!!!!!!
+        Zde 2 verze jak udělat podmíněný skok na "admin" page přes link Manage Roles (pokud non-Admin, tak vyhodí ALERT):
+            1) Admin Link: This link is visible only to users with the ADMIN role. sec:authorize="hasRole('ADMIN')" is a
+             Spring Security Thymeleaf directive that conditionally renders the content based on the CURRENT user's role. -->
+<!--        <li hidden sec:authorize="hasRole('ADMIN')"> <a th:href="@{/admin}">Manage Roles</a></li>-->
+           <!--  <a href="/admin">Manage Roles</a>  : Zkusil jsem i toto : zde jen klasický odkaz-->
+        <!-- <li sec:authorize="!hasRole('ADMIN')"><a href="javascript:void(0)" onclick="showAccessDenied()">Manage Roles</a></li>-->
+        <li th:if="${userRole == 'ROLE_ADMIN'}">
+            <a th:href="@{/admin}">Manage Roles</a>
+        </li>
+
+        <!-- VYSVETLENI: <a href="javascript:void(0)" onclick="showAccessDenied()">Manage Roles</a>:
+              This is a hyperlink (<a> tag) with two key attributes:
+              href="javascript:void(0)": Normally, the href attribute in an <a> tag defines the URL to which the link
+              points. Here, it uses a JavaScript URI with void(0) to ensure that clicking the link does nothing in terms
+              of navigation (i.e., it won’t take you to a new page or reload the current page).
+              onclick="showAccessDenied()": This sets up an event listener for the click event. When the link is clicked,
+              it runs the showAccessDenied JavaScript function.-->
+
+        <!--  2) Tato verze je pomocí: #authorization.expression('hasRole(''ADMIN'')'):
+               Thymeleaf th:if and th:unless Attributes: These attributes are used to conditionally render the "Manage Roles" link.
+               th:if="${#authorization.expression('hasRole(''ADMIN'')')}": This condition checks if the user has the
+               ADMIN role. If true, the normal link to the admin page is rendered.
+               th:unless="${#authorization.expression('hasRole(''ADMIN'')')}": This does the opposite. If the user does
+               not have the ADMIN role, it renders a link that does nothing (href="javascript:void(0)") but triggers
+               the showAccessDenied() function when clicked.-->
+<!--         Podverze a) <li th:if="${#authorization.expression('hasRole(''ADMIN'')')}" sec:authorize="hasRole('ADMIN')">-->
+<!--                     <a th:href="@{/admin}">Manage Roles</a>-->
+<!--                     </li>-->
+<!--         Podverze b) <li>
+                      <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}" th:href="@{/admin}">Manage Roles</a>
+                      <a th:unless="${#authorization.expression('hasRole(''ADMIN'')')}" href="javascript:void(0)" onclick="showAccessDenied()">Manage Roles</a>
+                      </li> -->
+        <!-- Podverze c) <li th:if="${#authorization.expression('hasRole(''USER'')')}" hidden>-->
+        <!--            <a th:href="@{/admin}">Manage Roles</a>-->
+        <!--            </li>-->
+
+         <!-- Logout Link: When clicked, it triggers a JavaScript onclick event that prevents the default link behavior
+         and instead submits the hidden logout form. This is a common pattern in Spring Security for CSRF-protected logout. -->
+        <li><a th:href="@{/logout}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
+    </ul>
+</nav>
+
+<!-- Logout Form (Hidden)
+     Hidden Logout Form: This form is used to perform the logout action. It includes a CSRF token for security. -->
+<form id="logout-form" th:action="@{/logout}" method="post">
+    <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+</form>
+
+<div class="container">
+    <h1>Todo List</h1>
+
+    <!-- Display all todos -->
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- HLAVNÍ PRINCIP: V MVC (THYMELEAF) MOHU POUŽÍVAT JAK PARAMETRY ZADANÉ V METODĚ PRO DANÝ PŘÍKAZ POST, GET, atd.,
+             ALE TAKY ATRIBUTY ZADANÉ POMOCÍ Model, JAKO PARAMETR METODY. Rozdíl mezi nimi je , že parametry z metody
+             (zde to jsou: tittle, date a id) použiji čistě jako jméno param bez závorek, kdežto ten atribut
+              definovaný v Model použiju takto: ${todos} -->
+        <!-- VOLÁME ZDE stránky z MvcController !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+        <tr th:each="todo : ${todos}">     <!-- Zde začíná jakoby FOR-EACH, a ten projede všechny "todos" - je to atribut
+                                                    z Model v getAllTodos metodě v MvcController. Každá položka v cyklu
+                                                    má název todo, a na jednotlivé field se odkazuji klasicky pomocí názvu
+                                                    Field v deklaraci Entity (todo.title,todo.dueDate) -->
+
+            <td th:text="${todo.title}"></td>                      <!-- Políčko pro tittle - Název Tasku-->
+            <!-- Políčko pro datum.
+                 #dates: This is a part of Thymeleaf's utility objects (predefined objects). #dates is specifically for
+                 date operations. Thymeleaf provides a variety of utility objects for tasks like working with dates,
+                 arrays, lists, and so forth.
+                 format(...): This is a method of the #dates utility object. It's used to format date objects. The format
+                 method takes two arguments: the date object to be formatted and the pattern to format the date.
+                 Převede ten datum tedy z formátu "yyyy-MM-dd"  na 'dd-MM-yyyy' a tak i zobrazí do formuláře!!!!!!!!!!!!-->
+            <td th:text="${#dates.format(todo.dueDate, 'dd-MM-yyyy')}"></td>
+<!--             <td th:text="${todo.isDone}"></td> -->
+            <td th:text="${todo.isDone ? 'done' : 'todo'}"></td> <!-- Políčko pro Status. Pokud field isDone=TRUE, tak
+                                                                     vytiskne do formuláře 'done', jinak 'todo'.-->
+            <td>
+                <!-- Políčko pro Change Status, volám stránku /changeStatus v MvcController-->
+                <form th:action="@{/changeStatus}" method="post">
+           <!-- Zde pouze pro tuto textovou položku získám název tak že ho ZADÁM JAKO HODNOTU Z DB - TJ."${todo.id}"
+                do položky value. A tak se vlastně i nastaví hodnota "id" z parametru příkazu POST. Je to vlastně v principu stejné,
+                jako bych zadal "id" v parametru příkazu POST. Zde to ten název parametru "id"
+                ZDE JDE O JINÝ (DRUHÝ) ZPŮSOB NASTAVENÍ HODNOTY KLÍČOVÉHO PARAMETRU V DANÉM POLÍČKU - ZDE PŘIŘADÍM HODNOTU,
+                KDEŽTO NÍŽE V name="title" HODNOTU ZADÁM Z KLÁVESNICE!!!!!!!!!!!!!!!!!!!!!!!!!
+        NAKONEC JEŠTĚ PŘI ODESLÁNÍ METODOU POST PROVEDU JEŠTĚ METODU todoService.changeStatus(id) UVNITŘ POST V CONTROLLERu
+        Submit se vždy vztahuje k action výše.-->
+                    <input type="hidden" th:name="id" th:value="${todo.id}"/>
+                    <button type="submit">Change Status</button>
+                </form>
+                <!-- JDE ZDE O TŘETÍ ZPŮSOB NASTAVENÍ HODNOTY KLÍČOVÉHO PARAMETRU V DANÉM POLÍČKU. Zde použiju ten parametr
+                     podobně jako v URL kde používám klasický PathVariable. {id} is a placeholder for a path variable,
+                     protože metoda deleteTodo je definovaná pro použití PathVariable: "/deleteTodo/{id}" .
+                     Každý řádek formuláře = řádek v DB, tj. daná Entita. Jak tedy zde získám to ID:
+                     (id=${todo.id}): This part of the expression is filling in the {id} placeholder with the actual ID
+                     of the Todo item. It's using a Thymeleaf expression ${...} to insert the value of todo.id into the URL.
+                     So, if todo.id is 123, the URL will become /deleteTodo/123. Protože každý řádek formuláře obsahuje
+                     patřičné Todo, a tedy i ID.-->
+                <!-- Políčko pro Delete, volám stránku /deleteTodo/{id} v MvcController-->
+                <form th:action="@{/deleteTodo/{id}(id=${todo.id})}" method="post">
+                    <button class="btn-danger" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>                           <!-- Až zde končí FOR-EACH -->
+        </tbody>
+    </table>
+    <h2>Create Todo</h2>
+    <form th:action="@{/createTodo}" method="post">  <!--Jako akci provedu odeslání formuláře pomocí metody createTodo
+                                                         v CONTROLLER. Je to stejné, jako bych vynutil POST v
+                                                         generated-requests v IntelliJ !!!!!!!!!!!!!!!!!-->
+        <label>Title:</label>
+        <input type="text" th:name="title" required/>  <!--HLAVNÍ PRINCIP: Zde pouze pro tuto textovou položku získám název
+                                                           tak že ho zadám DO FORMULÁŘE. A tak se vlastně i nastaví hodnota "title"
+                                                           z parametru příkazu POST. Je to vlastně v principu stejné,
+                                                           jako bych zadal "title" v parametru příkazu POST:
+                                                    POST http://localhost:8080/createTodo?title=Task2&date=2023-09-10-->
+              <!-- JDE ZDE O PRVNÍ ZPŮSOB NASTAVENÍ HODNOTY KLÍČOVÉHO PARAMETRU V DANÉM POLÍČKU - zadám z klávesnice-->
+        <br/>
+        <label>Date:</label>
+        <input type="date" th:name="date" required/>
+        <br/>
+        <button type="submit">Create</button>
+    </form>
+
+</div>
+</body>
+</html>

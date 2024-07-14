@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: auto; /* Center the container */
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: calc(100% - 20px); /* Adjusted width */
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #45a049;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Register</h2>
+
+    <form th:action="@{/registration}" method="post" th:object="${user}">
+        <label>Username:</label>
+        <input type="text" th:field="*{username}" required/>
+        <label>Password:</label>
+        <input type="password" th:field="*{password}" required/>
+        <button type="submit">Register</button>
+    </form>
+
+    <p>Already have an account? <a th:href="@{/login}">Login here</a></p>
+</div>
+</body>
+</html>
